@@ -10,9 +10,9 @@ namespace TicTacToe
 {
     public enum Symbol
     {
-        O = 0,
-        X = 1,
-        Blank = 2
+        O = -10,
+        X = 10,
+        Blank = 0
     }
     /// <summary>
     /// A single square on the gameboard.
@@ -33,6 +33,12 @@ namespace TicTacToe
 
         }
 
+        /// <summary>
+        /// Get square by its associated name.
+        /// </summary>
+        /// <param name="squares">A list of squares.</param>
+        /// <param name="name">The name we're looking for.</param>
+        /// <returns></returns>
         public static Square? GetByName(List<Square> squares, string name)
         {
             try

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace TicTacToe
 {
@@ -21,7 +23,10 @@ namespace TicTacToe
     public partial class MainWindow : Window
     {
 
-        static List<Button> buttons = new List<Button>();
+        public static List<Button> buttons = new List<Button>();
+        public static Symbol? AIPlayer;
+        DispatcherTimer AITimer = new DispatcherTimer();
+
 
         public MainWindow()
         {
@@ -35,6 +40,10 @@ namespace TicTacToe
             
             // Initiate a new game
             GameManager.InitGame(buttons);
+
+            // Set up AI timer to check if it's the AI's turn
+            AITimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            AITimer.Interval = new TimeSpan(0, 0, 1); // Sets off once a second
         }
 
         /// <summary>
@@ -54,7 +63,7 @@ namespace TicTacToe
         /// <param name="w"></param>
         public static void AnnounceWinner(Winner? w)
         {
-            if ((int)w > -1)
+            if ((int)w != 0)
             {
                 MessageBox.Show("The winner is " + w.ToString());
             }
@@ -108,6 +117,35 @@ namespace TicTacToe
             foreach (Button btn in GameGrid.Children.OfType<Button>())
             {
                 btn.Content = null;
+            }
+        }
+
+        private void btnAiTurn_Click(object sender, RoutedEventArgs e)
+        {
+            GameManager.AITurn();
+        }
+
+        private void cbAISymbol_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            AIPlayer = GameManager.SetSymbol(cbAISymbol.SelectedValue.ToString());
+            
+            GameManager.SetAIPlayer(AIPlayer);
+
+            if (AIPlayer != null)
+            {
+                AITimer.Start();
+            }
+            else
+            {
+                AITimer.Stop();
+            }
+        }
+
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            if (GameManager.turn == (int)GameManager.AIPlayer)
+            {
+                GameManager.AITurn();
             }
         }
     }
